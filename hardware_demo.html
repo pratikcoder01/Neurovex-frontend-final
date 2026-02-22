@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Neurovex Hardware Demo</title>
+    <script src="stitch/js/stitch-core.js"></script>
+    <script src="stitch/js/stitch-state.js"></script>
+    <script src="js/hardware-interface.js"></script>
+    <script src="js/stream-manager.js"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background: #f8f9fa;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .connected { background: #d4edda; color: #155724; }
+        .disconnected { background: #f8d7da; color: #721c24; }
+        .demo { background: #cce5ff; color: #004085; }
+        .real { background: #d1ecf1; color: #0c5460; }
+        .metric { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin: 10px 0; 
+            padding: 10px; 
+            background: #f8f9fa; 
+            border-radius: 5px; 
+        }
+        .bar { 
+            width: 200px; 
+            height: 20px; 
+            background: #e9ecef; 
+            border-radius: 10px; 
+            overflow: hidden; 
+        }
+        .bar-fill { 
+            height: 100%; 
+            transition: width 0.3s; 
+        }
+        .focus-bar { background: #007bff; }
+        .stress-bar { background: #dc3545; }
+        .fatigue-bar { background: #ffc107; }
+        .eeg-channel {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 5px 0;
+            padding: 5px;
+            background: #f8f9fa;
+            border-radius: 3px;
+        }
+        .signal-line {
+            width: 100px;
+            height: 2px;
+            background: #6c757d;
+            position: relative;
+            overflow: hidden;
+        }
+        .signal-wave {
+            position: absolute;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, #007bff, transparent);
+            animation: wave 2s linear infinite;
+        }
+        @keyframes wave {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0%); }
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 Neurovex Hardware Demo</h1>
+        <p>This page demonstrates the difference between Demo Mode and Real Hardware Mode.</p>
+        
+        <!-- Mode Status -->
+        <div class="card">
+            <h2>System Status</h2>
+            <div id="mode-status" class="status demo">DEMO MODE - Simulated Data</div>
+            <div id="device-status" class="status disconnected">No Hardware Connected</div>
+            
+            <div style="margin: 20px 0;">
+                <button onclick="toggleMode()" class="btn-primary">Toggle Demo/Real Mode</button>
+                <button onclick="startHardwareSimulator()" class="btn-success">Start Hardware Simulator</button>
+                <button onclick="stopHardwareSimulator()" class="btn-warning">Stop Hardware Simulator</button>
+                <button onclick="scanForHardware()" class="btn-secondary">Scan for Hardware</button>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Device Info -->
+            <div class="card">
+                <h2>Device Information</h2>
+                <div id="device-info">
+                    <p><strong>Name:</strong> <span id="device-name">--</span></p>
+                    <p><strong>Type:</strong> <span id="device-type">--</span></p>
+                    <p><strong>Channels:</strong> <span id="device-channels">--</span></p>
+                    <p><strong>Sample Rate:</strong> <span id="device-sample-rate">--</span></p>
+                    <p><strong>Connection:</strong> <span id="device-connection">--</span></p>
+                </div>
+            </div>
+
+            <!-- Signal Quality -->
+            <div class="card">
+                <h2>Signal Quality</h2>
+                <div id="signal-quality">
+                    <p><strong>Quality:</strong> <span id="quality-score">--%</span></p>
+                    <p><strong>Noise Level:</strong> <span id="noise-level">--</span></p>
+                    <p><strong>Impedance:</strong> <span id="impedance">--</span></p>
+                </div>
+                
+                <h3>EEG Channels</h3>
+                <div id="eeg-channels">
+                    <div class="eeg-channel">
+                        <span>CH1</span>
+                        <div class="signal-line">
+                            <div class="signal-wave"></div>
+                        </div>
+                        <span id="ch1-value">0.0 µV</span>
+                    </div>
+                    <div class="eeg-channel">
+                        <span>CH2</span>
+                        <div class="signal-line">
+                            <div class="signal-wave"></div>
+                        </div>
+                        <span id="ch2-value">0.0 µV</span>
+                    </div>
+                    <div class="eeg-channel">
+                        <span>CH3</span>
+                        <div class="signal-line">
+                            <div class="signal-wave"></div>
+                        </div>
+                        <span id="ch3-value">0.0 µV</span>
+                    </div>
+                    <div class="eeg-channel">
+                        <span>CH4</span>
+                        <div class="signal-line">
+                            <div class="signal-wave"></div>
+                        </div>
+                        <span id="ch4-value">0.0 µV</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Brain States -->
+        <div class="card">
+            <h2>Brain State Analysis</h2>
+            <div class="metric">
+                <span>Focus:</span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="bar"><div id="focus-bar" class="bar-fill focus-bar" style="width: 0%"></div></div>
+                    <span id="focus-value">0%</span>
+                </div>
+            </div>
+            <div class="metric">
+                <span>Stress:</span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="bar"><div id="stress-bar" class="bar-fill stress-bar" style="width: 0%"></div></div>
+                    <span id="stress-value">0%</span>
+                </div>
+            </div>
+            <div class="metric">
+                <span>Fatigue:</span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="bar"><div id="fatigue-bar" class="bar-fill fatigue-bar" style="width: 0%"></div></div>
+                    <span id="fatigue-value">0%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- EEG Bands -->
+        <div class="card">
+            <h2>EEG Band Power</h2>
+            <div class="metric">
+                <span>Delta (0.5-4 Hz):</span>
+                <span id="band-delta">0.00 µV²</span>
+            </div>
+            <div class="metric">
+                <span>Theta (4-8 Hz):</span>
+                <span id="band-theta">0.00 µV²</span>
+            </div>
+            <div class="metric">
+                <span>Alpha (8-13 Hz):</span>
+                <span id="band-alpha">0.00 µV²</span>
+            </div>
+            <div class="metric">
+                <span>Beta (13-30 Hz):</span>
+                <span id="band-beta">0.00 µV²</span>
+            </div>
+            <div class="metric">
+                <span>Gamma (30-50 Hz):</span>
+                <span id="band-gamma">0.00 µV²</span>
+            </div>
+        </div>
+
+        <!-- Data Source Info -->
+        <div class="card">
+            <h2>Data Source Information</h2>
+            <div id="data-source">
+                <p><strong>Current Source:</strong> <span id="source-type">Demo Simulation</span></p>
+                <p><strong>Update Rate:</strong> <span id="update-rate">-- Hz</span></p>
+                <p><strong>Latency:</strong> <span id="latency">-- ms</span></p>
+                <p><strong>Data Points:</strong> <span id="data-points">0</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let hardwareSimulatorInterval = null;
+        let dataPointCount = 0;
+
+        // Subscribe to state changes
+        StitchState.subscribe((data, key, val) => {
+            console.log(`State update: ${key} =`, val);
+            
+            // Update mode status
+            if (key === 'isRealHardware' || key === 'deviceStatus') {
+                updateModeStatus(data);
+            }
+            
+            // Update device info
+            if (key === 'deviceInfo') {
+                updateDeviceInfo(val);
+            }
+            
+            // Update brain states
+            if (key === 'brainStates') {
+                updateBrainStates(val);
+            }
+            
+            // Update EEG bands
+            if (key === 'eegBands') {
+                updateEEGBands(val);
+            }
+            
+            // Update raw signal
+            if (key === 'rawSignal') {
+                updateRawSignal(val);
+            }
+        });
+
+        function updateModeStatus(state) {
+            const modeStatus = document.getElementById('mode-status');
+            const deviceStatus = document.getElementById('device-status');
+            
+            if (state.isRealHardware && state.deviceStatus === 'connected') {
+                modeStatus.textContent = 'REAL HARDWARE MODE - Actual EEG Data';
+                modeStatus.className = 'status real';
+                deviceStatus.textContent = 'Hardware Connected: ' + (state.deviceInfo?.name || 'Unknown');
+                deviceStatus.className = 'status connected';
+            } else {
+                modeStatus.textContent = 'DEMO MODE - Simulated Data';
+                modeStatus.className = 'status demo';
+                deviceStatus.textContent = 'No Hardware Connected';
+                deviceStatus.className = 'status disconnected';
+            }
+        }
+
+        function updateDeviceInfo(deviceInfo) {
+            if (!deviceInfo) return;
+            
+            document.getElementById('device-name').textContent = deviceInfo.name || '--';
+            document.getElementById('device-type').textContent = deviceInfo.type || '--';
+            document.getElementById('device-channels').textContent = deviceInfo.channels || '--';
+            document.getElementById('device-sample-rate').textContent = deviceInfo.sample_rate ? deviceInfo.sample_rate + ' Hz' : '--';
+            document.getElementById('device-connection').textContent = deviceInfo.connected ? 'Connected' : 'Disconnected';
+        }
+
+        function updateBrainStates(states) {
+            updateBar('focus', states.focus, 'focus-bar');
+            updateBar('stress', states.stress, 'stress-bar');
+            updateBar('fatigue', states.fatigue, 'fatigue-bar');
+        }
+
+        function updateEEGBands(bands) {
+            document.getElementById('band-delta').textContent = bands.delta.toFixed(2) + ' µV²';
+            document.getElementById('band-theta').textContent = bands.theta.toFixed(2) + ' µV²';
+            document.getElementById('band-alpha').textContent = bands.alpha.toFixed(2) + ' µV²';
+            document.getElementById('band-beta').textContent = bands.beta.toFixed(2) + ' µV²';
+            document.getElementById('band-gamma').textContent = bands.gamma.toFixed(2) + ' µV²';
+        }
+
+        function updateRawSignal(signal) {
+            if (!signal || signal.length === 0) return;
+            
+            // Update channel values
+            for (let i = 0; i < Math.min(4, signal.length); i++) {
+                const value = signal[signal.length - 1] || 0;
+                document.getElementById(`ch${i + 1}-value`).textContent = value.toFixed(1) + ' µV';
+            }
+            
+            // Update data point count
+            dataPointCount++;
+            document.getElementById('data-points').textContent = dataPointCount;
+            
+            // Update source info
+            const isReal = StitchState.get().isRealHardware;
+            document.getElementById('source-type').textContent = isReal ? 'Real Hardware' : 'Demo Simulation';
+            document.getElementById('update-rate').textContent = isReal ? '250 Hz' : '10 Hz';
+            document.getElementById('latency').textContent = isReal ? '5-10 ms' : '50-100 ms';
+        }
+
+        function updateBar(metric, value, barClass) {
+            const bar = document.getElementById(`${metric}-bar`);
+            const text = document.getElementById(`${metric}-value`);
+            if (bar && text) {
+                bar.style.width = `${Math.min(100, Math.max(0, value))}%`;
+                text.textContent = `${value}%`;
+            }
+        }
+
+        function toggleMode() {
+            const state = StitchState.get();
+            
+            if (state.isRealHardware) {
+                // Switch to demo mode
+                if (window.HardwareInterface) {
+                    window.HardwareInterface.disconnect();
+                }
+                StitchState.update({
+                    isRealHardware: false,
+                    deviceStatus: 'disconnected',
+                    deviceInfo: null
+                });
+                console.log('Switched to Demo Mode');
+            } else {
+                // Try to connect real hardware
+                if (window.HardwareInterface) {
+                    window.HardwareInterface.startDetection();
+                }
+                console.log('Scanning for real hardware...');
+            }
+        }
+
+        function startHardwareSimulator() {
+            // This would normally start a Python process
+            // For demo purposes, we'll simulate the connection
+            console.log('Starting hardware simulator...');
+            alert('To start the hardware simulator, run: python hardware_simulator.py\n\nThen click "Scan for Hardware" to detect it.');
+        }
+
+        function stopHardwareSimulator() {
+            if (window.HardwareInterface) {
+                window.HardwareInterface.disconnect();
+            }
+            console.log('Hardware simulator stopped');
+        }
+
+        function scanForHardware() {
+            if (window.HardwareInterface) {
+                window.HardwareInterface.startDetection();
+                console.log('Scanning for hardware...');
+            }
+        }
+
+        // Initialize
+        console.log('Hardware Demo Page Loaded');
+        updateModeStatus(StitchState.get());
+    </script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Community | Neurovex</title>
+
+    <!-- Design System -->
+    <link href="stitch/css/stitch-base.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="stitch/js/stitch-theme.js"></script>
+
+    <!-- Fonts & Icons -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+</head>
+
+<body class="bg-background-light font-display text-slate-800 min-h-screen flex flex-col antialiased">
+
+    <!-- Common Scripts -->
+    <script src="stitch/js/stitch-core.js"></script>
+    <script src="stitch/js/stitch-state.js"></script>
+    <script src="stitch/js/stitch-auth.js"></script>
+    <script src="js/stream-manager.js"></script>
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 w-full bg-surface-light border-b border-neutral-light">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center gap-3 cursor-pointer group" onclick="window.location.href='index.html'">
+                    <img src="images/logo.jpeg" alt="Neurovex"
+                        class="w-10 h-10 rounded-lg object-contain bg-white p-0.5 shadow-sm group-hover:scale-105 transition-transform">
+                    <div class="flex flex-col">
+                        <span
+                            class="font-bold text-lg tracking-tight text-slate-900 group-hover:text-primary transition-colors">Neurovex</span>
+                        <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Research</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <!-- Theme Toggle -->
+                    <button id="theme-toggle"
+                        class="p-2 rounded-full text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                        <span class="material-icons text-xl dark:hidden">dark_mode</span>
+                        <span class="material-icons text-xl hidden dark:block text-yellow-400">light_mode</span>
+                    </button>
+
+                    <a href="dashboard.html"
+                        class="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Dashboard</a>
+                    <a href="profile.html"
+                        class="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-blue-400 flex items-center justify-center text-white text-xs font-bold ring-2 ring-white shadow-sm">JD</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Section -->
+    <div class="bg-white border-b border-slate-200 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-3xl font-bold text-slate-900 mb-4">Latest Research & Insights</h1>
+            <p class="text-lg text-slate-600 max-w-2xl">
+                Explore breakthroughs in Brain-Computer Interfaces, signal processing algorithms, and assistive
+                technology usage patterns.
+            </p>
+        </div>
+    </div>
+
+    <!-- Feed -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid lg:grid-cols-3 gap-8">
+
+            <!-- Main Content: Articles -->
+            <div class="lg:col-span-2 space-y-8">
+
+                <!-- Article 1 -->
+                <article
+                    class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow">
+                    <div class="p-8">
+                        <div class="flex items-center gap-2 text-xs font-medium text-slate-500 mb-4">
+                            <span class="text-primary bg-primary/10 px-2 py-1 rounded">Signal Processing</span>
+                            <span>•</span>
+                            <span>Oct 24, 2024</span>
+                        </div>
+                        <h2
+                            class="text-2xl font-bold text-slate-900 mb-3 hover:text-primary cursor-pointer transition-colors">
+                            Artifact Rejection in High-Noise Environments
+                        </h2>
+                        <p class="text-slate-600 mb-6 leading-relaxed">
+                            Implementing Independent Component Analysis (ICA) in real-time allows for the removal of
+                            ocular and muscle artifacts without significant latency. This study benchmarks three novel
+                            algorithms against standard filters.
+                        </p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-slate-200"></div>
+                                <span class="text-sm font-medium text-slate-700">Dr. Sarah Chen</span>
+                            </div>
+                            <button class="text-primary font-medium text-sm hover:underline">Read Paper</button>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Article 2 -->
+                <article
+                    class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow">
+                    <div class="p-8">
+                        <div class="flex items-center gap-2 text-xs font-medium text-slate-500 mb-4">
+                            <span class="text-rose-500 bg-rose-50 px-2 py-1 rounded">Ethics</span>
+                            <span>•</span>
+                            <span>Oct 20, 2024</span>
+                        </div>
+                        <h2
+                            class="text-2xl font-bold text-slate-900 mb-3 hover:text-primary cursor-pointer transition-colors">
+                            Privacy-First BCI Data Architecture
+                        </h2>
+                        <p class="text-slate-600 mb-6 leading-relaxed">
+                            As brain data becomes more accessible, protecting user neural patterns is paramount. We
+                            propose a new "Neural Hash" technique that anonymizes EEG features at the edge before cloud
+                            transmission.
+                        </p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-slate-200"></div>
+                                <span class="text-sm font-medium text-slate-700">James Wilson</span>
+                            </div>
+                            <button class="text-primary font-medium text-sm hover:underline">Read Paper</button>
+                        </div>
+                    </div>
+                </article>
+
+            </div>
+
+            <!-- Sidebar: Trending / Tags -->
+            <div class="space-y-8">
+                <!-- Topics -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 class="font-bold text-slate-900 mb-4">Research Topics</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <span
+                            class="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-full text-xs font-medium text-slate-700 cursor-pointer">SSVEP</span>
+                        <span
+                            class="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-full text-xs font-medium text-slate-700 cursor-pointer">Motor
+                            Imagery</span>
+                        <span
+                            class="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-full text-xs font-medium text-slate-700 cursor-pointer">Neurofeedback</span>
+                        <span
+                            class="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-full text-xs font-medium text-slate-700 cursor-pointer">Machine
+                            Learning</span>
+                        <span
+                            class="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-full text-xs font-medium text-slate-700 cursor-pointer">Assistive
+                            Robotics</span>
+                    </div>
+                </div>
+
+                <!-- Updates -->
+                <div class="bg-primary/5 p-6 rounded-xl border border-primary/10">
+                    <h3 class="font-bold text-primary mb-4">System Updates</h3>
+                    <ul class="space-y-4">
+                        <li class="text-sm">
+                            <span class="block font-bold text-slate-800">Version 2.4.1 Released</span>
+                            <span class="block text-slate-500 mt-1">Improved latency on Cortex Mark IV driver
+                                integration.</span>
+                        </li>
+                        <li class="text-sm">
+                            <span class="block font-bold text-slate-800">Maintenance Window</span>
+                            <span class="block text-slate-500 mt-1">Scheduled for Nov 1st, 2024. 02:00 UTC.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white mt-auto border-t border-slate-200 py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-sm text-slate-500">
+            &copy; 2024 Neurovex Research Platform.
+        </div>
+    </footer>
+</body>
+
+</html>

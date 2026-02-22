@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | Neurovex</title>
+
+    <!-- Design System -->
+    <link href="stitch/css/stitch-base.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="stitch/js/stitch-theme.js"></script>
+
+    <!-- Fonts & Icons -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+</head>
+
+<body class="bg-background-light font-display text-slate-800 h-screen flex flex-col overflow-hidden antialiased">
+
+    <!-- Common Scripts -->
+    <script src="stitch/js/stitch-core.js"></script>
+    <script src="stitch/js/stitch-state.js"></script>
+    <script src="stitch/js/stitch-auth.js"></script>
+    <script src="js/stream-manager.js"></script>
+
+    <!-- Header -->
+    <header
+        class="bg-surface-light border-b border-slate-200 h-16 flex items-center justify-between px-6 flex-shrink-0 z-20 shadow-sm">
+        <div class="flex items-center gap-4 cursor-pointer group" onclick="window.location.href='index.html'">
+            <img src="images/logo.jpeg" alt="Neurovex"
+                class="w-9 h-9 rounded-lg object-contain bg-white p-0.5 shadow-sm group-hover:scale-105 transition-transform">
+            <span
+                class="font-bold text-xl tracking-tight text-slate-900 group-hover:text-primary transition-colors">Neurovex</span>
+            <div class="h-6 w-px bg-slate-200 mx-2"></div>
+            <div class="text-sm font-medium text-slate-500">Researcher Profile</div>
+        </div>
+
+        <div class="flex items-center gap-6">
+            <!-- Theme Toggle -->
+            <button id="theme-toggle"
+                class="p-2 rounded-full text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                <span class="material-icons text-xl dark:hidden">dark_mode</span>
+                <span class="material-icons text-xl hidden dark:block text-yellow-400">light_mode</span>
+            </button>
+
+            <button
+                class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors shadow-sm">
+                <span class="material-icons text-sm">download</span>
+                Export All Data (CSV)
+            </button>
+            <button class="text-slate-400 hover:text-primary transition-colors" onclick="StitchAuth.logout()">
+                <span class="material-icons-outlined">logout</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 flex overflow-hidden">
+
+        <!-- Left Sidebar: User Details -->
+        <aside class="w-80 bg-surface-light border-r border-slate-200 p-6 flex flex-col gap-6 z-10 overflow-y-auto">
+            <div class="text-center pb-6 border-b border-slate-100">
+                <div
+                    class="w-24 h-24 bg-gradient-to-tr from-primary to-blue-400 rounded-full mx-auto flex items-center justify-center text-white text-3xl font-bold shadow-lg mb-4">
+                    JD
+                </div>
+                <h2 class="text-xl font-bold text-slate-900" id="profile-name">John Doe</h2>
+                <div class="text-sm text-slate-500 font-medium" id="profile-role">Lead Researcher</div>
+                <div
+                    class="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    Active License
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Affiliation</h3>
+                <div class="space-y-3 text-sm">
+                    <div class="flex items-start gap-3">
+                        <span class="material-icons text-slate-400 text-lg">school</span>
+                        <div>
+                            <div class="font-medium text-slate-700">NeuroTech Institute</div>
+                            <div class="text-slate-500 text-xs">Department of BCI</div>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <span class="material-icons text-slate-400 text-lg">email</span>
+                        <div class="text-slate-600 truncate">researcher@institute.edu</div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Statistics</h3>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-slate-50 p-3 rounded border border-slate-100 text-center">
+                        <div class="text-2xl font-bold text-slate-800">24</div>
+                        <div class="text-[10px] text-slate-500 uppercase">Sessions</div>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded border border-slate-100 text-center">
+                        <div class="text-2xl font-bold text-slate-800">18h</div>
+                        <div class="text-[10px] text-slate-500 uppercase">Recorded</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content: History -->
+        <section class="flex-1 bg-background-light p-8 overflow-y-auto">
+            <div class="max-w-5xl mx-auto">
+
+                <!-- Session History -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <span class="material-icons text-primary">history</span>
+                        Recent Sessions
+                    </h3>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <table class="min-w-full divide-y divide-slate-200">
+                            <thead class="bg-slate-50">
+                                <tr>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                        Date</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                        Session ID</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                        Duration</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                        Avg Focus</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                        Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-slate-200 text-sm">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-slate-600">Oct 24, 2024</td>
+                                    <td class="px-6 py-4 whitespace-nowrap font-mono text-slate-500">NVX-8392</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-slate-700">45m 12s</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-16 bg-slate-100 rounded-full h-1.5 mr-2">
+                                                <div class="bg-primary h-1.5 rounded-full" style="width: 78%"></div>
+                                            </div>
+                                            <span class="text-slate-600 font-medium">78%</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <a href="#" class="text-primary hover:text-primary-dark">View Analysis</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-slate-600">Oct 23, 2024</td>
+                                    <td class="px-6 py-4 whitespace-nowrap font-mono text-slate-500">NVX-8381</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-slate-700">12m 05s</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-16 bg-slate-100 rounded-full h-1.5 mr-2">
+                                                <div class="bg-amber-500 h-1.5 rounded-full" style="width: 45%"></div>
+                                            </div>
+                                            <span class="text-slate-600 font-medium">45%</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <a href="#" class="text-primary hover:text-primary-dark">View Analysis</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-slate-600">Oct 20, 2024</td>
+                                    <td class="px-6 py-4 whitespace-nowrap font-mono text-slate-500">NVX-8310</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-slate-700">1h 05m</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-16 bg-slate-100 rounded-full h-1.5 mr-2">
+                                                <div class="bg-primary h-1.5 rounded-full" style="width: 82%"></div>
+                                            </div>
+                                            <span class="text-slate-600 font-medium">82%</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <a href="#" class="text-primary hover:text-primary-dark">View Analysis</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Hardware log -->
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <span class="material-icons text-slate-500">precision_manufacturing</span>
+                        Hardware Interaction Log
+                    </h3>
+                    <div class="grid gap-4">
+                        <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex items-start gap-4">
+                            <div class="p-2 bg-red-100 rounded text-red-600">
+                                <span class="material-icons text-lg">warning</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start">
+                                    <h4 class="text-sm font-bold text-slate-800">Emergency Stop Triggered</h4>
+                                    <span class="text-xs text-slate-500">Today, 10:42 AM</span>
+                                </div>
+                                <p class="text-sm text-slate-500 mt-1">Manual override initiated by user during Session
+                                    NVX-DEMO-001. System reset successfully.</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex items-start gap-4">
+                            <div class="p-2 bg-blue-100 rounded text-blue-600">
+                                <span class="material-icons text-lg">touch_app</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start">
+                                    <h4 class="text-sm font-bold text-slate-800">Robotic Grapple Success</h4>
+                                    <span class="text-xs text-slate-500">Yesterday, 4:15 PM</span>
+                                </div>
+                                <p class="text-sm text-slate-500 mt-1">Grip command executed with 89% confidence
+                                    interval. Duration: 4s.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Init Profile Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = StitchAuth.getCurrentUser();
+            if (user) {
+                document.getElementById('profile-name').innerText = user.name || user.email;
+                document.getElementById('profile-role').innerText = user.role.toUpperCase();
+            }
+        });
+    </script>
+</body>
+
+</html>

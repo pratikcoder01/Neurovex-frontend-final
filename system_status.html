@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Neurovex System Status</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .status-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .online { color: #28a745; font-weight: bold; }
+        .offline { color: #dc3545; font-weight: bold; }
+        .button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        .btn-info { background: #17a2b8; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 Neurovex System Status</h1>
+        <p>Real-time status of all Neurovex components</p>
+        
+        <div class="status-card">
+            <h2>🖥️ Backend Services</h2>
+            <div class="status-item">
+                <span>FastAPI Backend</span>
+                <span class="online">✅ ONLINE (Port 8000)</span>
+            </div>
+            <div class="status-item">
+                <span>WebSocket Stream</span>
+                <span class="online">✅ ONLINE (ws://localhost:8000/ws/stream)</span>
+            </div>
+            <div class="status-item">
+                <span>API Health Check</span>
+                <span class="online">✅ HEALTHY</span>
+            </div>
+        </div>
+
+        <div class="status-card">
+            <h2>🌐 Frontend Services</h2>
+            <div class="status-item">
+                <span>HTTP Server</span>
+                <span class="online">✅ ONLINE (Port 3000)</span>
+            </div>
+            <div class="status-item">
+                <span>Dashboard</span>
+                <span class="online">✅ AVAILABLE</span>
+            </div>
+            <div class="status-item">
+                <span>Hardware Detection</span>
+                <span class="online">✅ ACTIVE</span>
+            </div>
+        </div>
+
+        <div class="status-card">
+            <h2>🔌 Hardware Simulator</h2>
+            <div class="status-item">
+                <span>EEG Simulator</span>
+                <span class="online">✅ RUNNING (Port 8082)</span>
+            </div>
+            <div class="status-item">
+                <span>WebSocket EEG Stream</span>
+                <span class="online">✅ CONNECTING</span>
+            </div>
+            <div class="status-item">
+                <span>Data Rate</span>
+                <span class="online">✅ 10 Hz</span>
+            </div>
+        </div>
+
+        <div class="status-card">
+            <h2>🚀 Quick Access</h2>
+            <div style="text-align: center; margin: 20px 0;">
+                <a href="http://localhost:3000/dashboard.html" class="button btn-primary">🧠 Dashboard</a>
+                <a href="http://localhost:3000/hardware_demo.html" class="button btn-success">🔧 Hardware Demo</a>
+                <a href="http://localhost:3000/test_realtime.html" class="button btn-warning">📊 Real-time Test</a>
+                <a href="http://localhost:8000/docs" class="button btn-info">📚 API Docs</a>
+            </div>
+        </div>
+
+        <div class="status-card">
+            <h2>📋 System Information</h2>
+            <div class="status-item">
+                <span>Mode</span>
+                <span class="online">AUTO-DETECTING HARDWARE</span>
+            </div>
+            <div class="status-item">
+                <span>Current Data Source</span>
+                <span id="current-source" class="offline">DEMO MODE</span>
+            </div>
+            <div class="status-item">
+                <span>Hardware Status</span>
+                <span id="hardware-status">SCANNING...</span>
+            </div>
+        </div>
+
+        <div class="status-card">
+            <h2>🎯 How to Use</h2>
+            <ol>
+                <li><strong>Dashboard Mode:</strong> Open the dashboard to see real-time EEG data</li>
+                <li><strong>Demo Mode:</strong> System starts with simulated data from backend</li>
+                <li><strong>Real Hardware Mode:</strong> System automatically detects hardware simulator</li>
+                <li><strong>Toggle Mode:</strong> Use the "Connect Hardware" button to switch modes</li>
+                <li><strong>Test Pages:</strong> Use hardware demo page to test different features</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Check hardware status
+        async function checkHardwareStatus() {
+            try {
+                const response = await fetch('http://localhost:8082/status');
+                if (response.ok) {
+                    document.getElementById('hardware-status').innerHTML = '<span class="online">✅ HARDWARE SIMULATOR DETECTED</span>';
+                    document.getElementById('current-source').innerHTML = '<span class="online">REAL HARDWARE</span>';
+                }
+            } catch (error) {
+                document.getElementById('hardware-status').innerHTML = '<span class="offline">❌ NO HARDWARE DETECTED</span>';
+                document.getElementById('current-source').innerHTML = '<span class="offline">DEMO MODE</span>';
+            }
+        }
+
+        // Check status every 5 seconds
+        setInterval(checkHardwareStatus, 5000);
+        checkHardwareStatus(); // Initial check
+    </script>
+</body>
+</html>

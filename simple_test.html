@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple WebSocket Test</title>
+</head>
+<body>
+    <h1>WebSocket Test</h1>
+    <div id="status">Status: Connecting...</div>
+    <div id="data"></div>
+    
+    <script>
+        console.log("Starting WebSocket test...");
+        const status = document.getElementById('status');
+        const data = document.getElementById('data');
+        
+        try {
+            const ws = new WebSocket('ws://localhost:8000/ws/stream');
+            
+            ws.onopen = () => {
+                console.log('WebSocket connected');
+                status.textContent = 'Status: Connected!';
+                status.style.color = 'green';
+            };
+            
+            ws.onmessage = (event) => {
+                const payload = JSON.parse(event.data);
+                console.log('Received:', payload);
+                data.innerHTML = '<pre>' + JSON.stringify(payload, null, 2) + '</pre>';
+            };
+            
+            ws.onclose = () => {
+                console.log('WebSocket disconnected');
+                status.textContent = 'Status: Disconnected';
+                status.style.color = 'red';
+            };
+            
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+                status.textContent = 'Status: Error - ' + error;
+                status.style.color = 'red';
+            };
+        } catch (error) {
+            console.error('Failed to create WebSocket:', error);
+            status.textContent = 'Status: Failed to create WebSocket - ' + error;
+            status.style.color = 'red';
+        }
+    </script>
+</body>
+</html>

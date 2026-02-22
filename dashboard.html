@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neurovex Dashboard | AI-BCI</title>
+
+    <!-- Design System -->
+    <link href="stitch/css/stitch-base.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="stitch/js/stitch-theme.js"></script>
+
+    <!-- Fonts & Icons -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+
+    <style>
+        .eeg-grid {
+            background-size: 40px 40px;
+            background-image:
+                linear-gradient(to right, rgba(36, 99, 235, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(36, 99, 235, 0.05) 1px, transparent 1px);
+        }
+
+        .scroller::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scroller::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+
+<body class="bg-background-light font-display text-slate-800 h-screen flex flex-col overflow-hidden antialiased">
+
+    <!-- Core Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="stitch/js/stitch-core.js"></script>
+    <script src="stitch/js/stitch-state.js"></script>
+    <script src="stitch/js/stitch-theme.js"></script>
+    <script src="stitch/js/stitch-auth.js"></script>
+    <script src="js/hardware-interface.js"></script> <!-- Hardware Detection -->
+    <script src="js/stream-manager.js"></script> <!-- Backend Connection -->
+    <script src="js/session-api.js"></script> <!-- Session Recording -->
+
+    <!-- Header -->
+    <header
+        class="bg-surface-light border-b border-slate-200 h-16 flex items-center justify-between px-6 flex-shrink-0 z-20 shadow-sm">
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 text-primary font-bold text-xl tracking-tight cursor-pointer"
+                onclick="window.location.href='index.html'">
+                <img src="images/logo.jpeg" alt="Logo" class="w-8 h-8 object-contain">
+                <span>NEUROVEX</span>
+            </div>
+            <div class="hidden md:flex ml-4">
+                <button id="btn-record" onclick="toggleRecording()"
+                    class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors text-sm font-medium">
+                    <span class="material-icons text-[16px]">radio_button_checked</span>
+                    <span>Start Recording</span>
+                </button>
+            </div>
+            <div class="h-6 w-px bg-slate-200 mx-2"></div>
+            <div class="flex items-center gap-3">
+                <div id="mode-indicator"
+                    class="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-2 ring-1 ring-primary/20">
+                    <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                    <span id="mode-text">DEMO MODE</span>
+                </div>
+                <button id="btn-toggle-mode" onclick="toggleMode()"
+                    class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-1 rounded transition-colors">
+                    <span class="material-icons text-[12px]">switch_access_shortcut</span>
+                    <span id="toggle-text">Connect Hardware</span>
+                </button>
+                <div class="text-sm text-slate-500">Session ID: <span
+                        class="font-mono text-slate-700" id="session-id">NVX-DEMO-001</span></div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-6">
+            <div class="flex items-center gap-3 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+                <span class="material-icons-outlined text-slate-400 text-lg">person</span>
+                <div class="flex flex-col text-right">
+                    <span class="text-xs font-medium text-slate-700" id="user-name">Guest Researcher</span>
+                    <span class="text-[10px] text-slate-400 uppercase tracking-wider" id="user-role">VIEWER</span>
+                </div>
+            </div>
+            <button class="text-slate-400 hover:text-primary transition-colors" onclick="StitchAuth.logout()">
+                <span class="material-icons-outlined">logout</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex overflow-hidden">
+
+        <!-- Left Sidebar: Device & Signal -->
+        <aside class="w-72 bg-surface-light border-r border-slate-200 flex flex-col z-10">
+            <!-- Device Status -->
+            <div class="p-5 border-b border-slate-100">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Device Status</h3>
+                    <span class="text-safe-emerald flex items-center gap-1 text-xs font-medium">
+                        <span class="material-icons text-[14px]">battery_full</span> <span
+                            id="device-battery">--%</span>
+                    </span>
+                </div>
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400">
+                        <span class="material-icons-outlined text-2xl">router</span>
+                    </div>
+                    <div>
+                        <div class="font-bold text-slate-800" id="device-name">Not Connected</div>
+                        <div class="text-xs text-slate-500 font-mono" id="device-specs">-- Channel • --Hz</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 mt-4">
+                    <div class="bg-background-light p-2 rounded flex flex-col items-center justify-center">
+                        <span class="text-[10px] text-slate-500 uppercase">Impedance</span>
+                        <span class="font-mono font-medium text-slate-700 text-sm" id="device-impedance">--</span>
+                    </div>
+                    <div class="bg-background-light p-2 rounded flex flex-col items-center justify-center">
+                        <span class="text-[10px] text-slate-500 uppercase">Lag</span>
+                        <span class="font-mono font-medium text-slate-700 text-sm" id="device-lag">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Signal Quality List -->
+            <div class="p-5 flex-1 flex flex-col scroller overflow-y-auto">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Signal Quality</h3>
+                <div class="space-y-1" id="channel-list">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-slate-100">
+                <a href="hardware.html"
+                    class="flex items-center justify-center w-full py-2 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-lg text-sm font-medium transition-colors border border-slate-200">
+                    <span class="material-icons-outlined text-sm mr-2">settings_remote</span>
+                    Hardware Control
+                </a>
+            </div>
+        </aside>
+
+        <!-- Center: Waveforms -->
+        <section class="flex-1 flex flex-col relative bg-surface-light">
+            <!-- Toolbar -->
+            <div class="absolute top-4 right-4 z-10 flex gap-2">
+                <button
+                    class="bg-white/90 backdrop-blur border border-slate-200 hover:border-primary/50 text-slate-600 hover:text-primary p-2 rounded-lg shadow-sm transition-all"
+                    title="Toggle Grid">
+                    <span class="material-icons-outlined text-sm">grid_on</span>
+                </button>
+                <button
+                    class="bg-white/90 backdrop-blur border border-slate-200 hover:border-primary/50 text-slate-600 hover:text-primary p-2 rounded-lg shadow-sm transition-all"
+                    title="Filter Settings">
+                    <span class="material-icons-outlined text-sm">tune</span>
+                </button>
+            </div>
+
+            <!-- Canvas Container -->
+            <div class="flex-1 eeg-grid relative overflow-hidden flex flex-col justify-center" id="waveform-container">
+                <!-- Y-Axis -->
+                <div
+                    class="absolute left-0 top-0 bottom-0 w-12 bg-surface-light/30 backdrop-blur-sm border-r border-slate-200/50 flex flex-col justify-between py-4 text-[10px] text-slate-400 font-mono text-center z-10 select-none">
+                    <span>+100</span>
+                    <span>+50</span>
+                    <span>0 µV</span>
+                    <span>-50</span>
+                    <span>-100</span>
+                </div>
+
+                <!-- Canvases will be injected here by JS -->
+            </div>
+        </section>
+
+        <!-- Right Sidebar: Analysis -->
+        <aside class="w-80 bg-surface-light border-l border-slate-200 flex flex-col z-10 overflow-y-auto scroller">
+            <div class="p-5 border-b border-slate-100">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Brain State (AI)</h3>
+
+                <!-- Focus -->
+                <div class="mb-5">
+                    <div class="flex justify-between items-end mb-1">
+                        <span class="text-sm font-medium text-slate-700">Focus</span>
+                        <span class="text-lg font-mono font-bold text-primary" id="val-focus">--%</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div class="bg-primary h-2 rounded-full transition-all duration-300" id="bar-focus"
+                            style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Stress -->
+                <div class="mb-5">
+                    <div class="flex justify-between items-end mb-1">
+                        <span class="text-sm font-medium text-slate-700">Stress</span>
+                        <span class="text-lg font-mono font-bold text-danger-rose" id="val-stress">--%</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div class="bg-danger-rose h-2 rounded-full transition-all duration-300" id="bar-stress"
+                            style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Fatigue -->
+                <div class="mb-5">
+                    <div class="flex justify-between items-end mb-1">
+                        <span class="text-sm font-medium text-slate-700">Fatigue</span>
+                        <span class="text-lg font-mono font-bold text-alert-amber" id="val-fatigue">--%</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div class="bg-alert-amber h-2 rounded-full transition-all duration-300" id="bar-fatigue"
+                            style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Band Power -->
+            <div class="p-5 flex-1">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Band Power (FFT)</h3>
+                <div class="space-y-3">
+                    <div class="bg-slate-50 p-3 rounded border border-slate-100 flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-rose-500"></div>
+                            <span class="text-xs font-bold text-slate-600">Delta</span>
+                        </div>
+                        <span class="font-mono text-xs text-slate-800" id="band-delta">0.0 µV²</span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded border border-slate-100 flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+                            <span class="text-xs font-bold text-slate-600">Theta</span>
+                        </div>
+                        <span class="font-mono text-xs text-slate-800" id="band-theta">0.0 µV²</span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded border border-slate-100 flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+                            <span class="text-xs font-bold text-slate-600">Alpha</span>
+                        </div>
+                        <span class="font-mono text-xs text-slate-800" id="band-alpha">0.0 µV²</span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded border border-slate-100 flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-blue-500"></div>
+                            <span class="text-xs font-bold text-slate-600">Beta</span>
+                        </div>
+                        <span class="font-mono text-xs text-slate-800" id="band-beta">0.0 µV²</span>
+                    </div>
+                </div>
+
+                <!-- Confidence Score -->
+                <div class="mt-6 p-4 bg-slate-900 rounded-xl text-white">
+                    <div class="text-xs font-mono text-slate-400 mb-1">CONFIDENCE SCORE</div>
+                    <div class="text-3xl font-bold font-mono tracking-tighter" id="confidence-score">94.2%</div>
+                    <div class="text-[10px] text-slate-500 mt-2">Based on signal quality & artifact rejection</div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Page Specific Logic -->
+    <script src="js/dashboard.js"></script>
+</body>
+
+</html>

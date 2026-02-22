@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Real-time Test</title>
+    <script src="stitch/js/stitch-core.js"></script>
+    <script src="stitch/js/stitch-state.js"></script>
+    <script src="js/stream-manager.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .metric { margin: 10px 0; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        .bar { width: 200px; height: 20px; background: #f0f0f0; border-radius: 10px; overflow: hidden; }
+        .bar-fill { height: 100%; background: #007bff; transition: width 0.3s; }
+        .connected { color: green; font-weight: bold; }
+        .disconnected { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Neurovex Real-time Test</h1>
+    
+    <div id="device-status" class="disconnected">Device: Disconnected</div>
+    
+    <div class="metric">
+        <label>Focus: <span id="focus-value">0%</span></label>
+        <div class="bar"><div id="focus-bar" class="bar-fill" style="width: 0%"></div></div>
+    </div>
+    
+    <div class="metric">
+        <label>Stress: <span id="stress-value">0%</span></label>
+        <div class="bar"><div id="stress-bar" class="bar-fill" style="width: 0%"></div></div>
+    </div>
+    
+    <div class="metric">
+        <label>Fatigue: <span id="fatigue-value">0%</span></label>
+        <div class="bar"><div id="fatigue-bar" class="bar-fill" style="width: 0%"></div></div>
+    </div>
+    
+    <div class="metric">
+        <h3>EEG Bands:</h3>
+        <div>Delta: <span id="delta">0.00</span> µV²</div>
+        <div>Theta: <span id="theta">0.00</span> µV²</div>
+        <div>Alpha: <span id="alpha">0.00</span> µV²</div>
+        <div>Beta: <span id="beta">0.00</span> µV²</div>
+        <div>Gamma: <span id="gamma">0.00</span> µV²</div>
+    </div>
+    
+    <div class="metric">
+        <h3>Raw Signal:</h3>
+        <div id="signal-info">No signal data</div>
+    </div>
+    
+    <script>
+        console.log("Real-time test starting...");
+        
+        // Subscribe to state changes
+        StitchState.subscribe((data, key, val) => {
+            console.log(`State update: ${key} =`, val);
+            
+            if (key === 'deviceStatus') {
+                const status = document.getElementById('device-status');
+                status.textContent = `Device: ${val}`;
+                status.className = val === 'connected' ? 'connected' : 'disconnected';
+            }
+            
+            if (key === 'brainStates') {
+                updateBar('focus', val.focus);
+                updateBar('stress', val.stress);
+                updateBar('fatigue', val.fatigue);
+            }
+            
+            if (key === 'eegBands') {
+                document.getElementById('delta').textContent = val.delta.toFixed(2);
+                document.getElementById('theta').textContent = val.theta.toFixed(2);
+                document.getElementById('alpha').textContent = val.alpha.toFixed(2);
+                document.getElementById('beta').textContent = val.beta.toFixed(2);
+                document.getElementById('gamma').textContent = val.gamma.toFixed(2);
+            }
+            
+            if (key === 'rawSignal') {
+                const signalInfo = document.getElementById('signal-info');
+                signalInfo.textContent = `Signal length: ${val.length}, Last value: ${val[val.length - 1]?.toFixed(2) || 'N/A'}`;
+            }
+        });
+        
+        function updateBar(metric, value) {
+            document.getElementById(`${metric}-value`).textContent = `${value}%`;
+            document.getElementById(`${metric}-bar`).style.width = `${value}%`;
+        }
+        
+        // Initialize display
+        updateBar('focus', 0);
+        updateBar('stress', 0);
+        updateBar('fatigue', 0);
+    </script>
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up | Neurovex</title>
+
+    <!-- Design System -->
+    <link href="stitch/css/stitch-base.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="stitch/js/stitch-theme.js"></script>
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+
+<body class="bg-background-light text-slate-800 min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+
+    <!-- Header -->
+    <div class="sm:mx-auto sm:w-full sm:max-w-md relative z-10 text-center mb-8">
+        <div class="inline-flex items-center gap-2 mb-2 cursor-pointer" onclick="window.location.href='index.html'">
+            <img src="images/logo.jpeg" alt="Neurovex Logo"
+                class="w-16 h-16 rounded-xl object-contain bg-white p-1 shadow-md mb-2">
+        </div>
+        <h2 class="text-3xl font-bold tracking-tight text-slate-900">
+            Join the Platform
+        </h2>
+        <p class="mt-2 text-sm text-slate-600">
+            Create your account to start collecting data
+        </p>
+
+        <!-- Floating Theme Toggle for Signup -->
+        <button id="theme-toggle"
+            class="absolute top-0 right-0 p-2 rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            <span class="material-icons dark:hidden">dark_mode</span>
+            <span class="material-icons hidden dark:block text-yellow-400">light_mode</span>
+        </button>
+    </div>
+
+    <!-- Card -->
+    <div class="sm:mx-auto sm:w-full sm:max-w-[520px] relative z-10">
+        <div class="bg-white py-8 px-4 shadow-xl border border-slate-100 sm:rounded-xl sm:px-10">
+            <form class="space-y-5" onsubmit="event.preventDefault(); handleSignup();">
+
+                <!-- Name -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="first-name" class="block text-sm font-medium text-slate-700">First Name</label>
+                        <div class="mt-1">
+                            <input id="first-name" type="text" required
+                                class="appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="last-name" class="block text-sm font-medium text-slate-700">Last Name</label>
+                        <div class="mt-1">
+                            <input id="last-name" type="text" required
+                                class="appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-slate-700">Institutional Email</label>
+                    <div class="mt-1">
+                        <input id="email" type="email" required
+                            class="appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label for="password" class="block text-sm font-medium text-slate-700">Password</label>
+                    <div class="mt-1">
+                        <input id="password" type="password" required
+                            class="appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
+                    </div>
+                </div>
+
+                <!-- Role Selection -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Primary Role</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label
+                            class="relative flex items-center justify-center p-3 border rounded-lg cursor-pointer hover:bg-slate-50 focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all role-option"
+                            data-role="researcher">
+                            <input type="radio" name="role" value="researcher" class="sr-only" checked
+                                onchange="updateRoleUI(this)">
+                            <div class="text-center">
+                                <span class="material-icons block text-slate-400 mb-1">science</span>
+                                <span class="text-xs font-medium text-slate-900">Researcher</span>
+                            </div>
+                        </label>
+                        <label
+                            class="relative flex items-center justify-center p-3 border rounded-lg cursor-pointer hover:bg-slate-50 focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all role-option"
+                            data-role="student">
+                            <input type="radio" name="role" value="student" class="sr-only"
+                                onchange="updateRoleUI(this)">
+                            <div class="text-center">
+                                <span class="material-icons block text-slate-400 mb-1">school</span>
+                                <span class="text-xs font-medium text-slate-900">Student</span>
+                            </div>
+                        </label>
+                        <label
+                            class="relative flex items-center justify-center p-3 border rounded-lg cursor-pointer hover:bg-slate-50 focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all role-option"
+                            data-role="patient">
+                            <input type="radio" name="role" value="patient" class="sr-only"
+                                onchange="updateRoleUI(this)">
+                            <div class="text-center">
+                                <span class="material-icons block text-slate-400 mb-1">wheelchair_pickup</span>
+                                <span class="text-xs font-medium text-slate-900">Patient</span>
+                            </div>
+                        </label>
+                        <label
+                            class="relative flex items-center justify-center p-3 border rounded-lg cursor-pointer hover:bg-slate-50 focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all role-option"
+                            data-role="caregiver">
+                            <input type="radio" name="role" value="caregiver" class="sr-only"
+                                onchange="updateRoleUI(this)">
+                            <div class="text-center">
+                                <span class="material-icons block text-slate-400 mb-1">volunteer_activism</span>
+                                <span class="text-xs font-medium text-slate-900">Caregiver</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Purpose -->
+                <div>
+                    <label for="purpose" class="block text-sm font-medium text-slate-700">Purpose of Usage</label>
+                    <select id="purpose"
+                        class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                        <option>Academic Research</option>
+                        <option>Assistive Technology</option>
+                        <option>Clinical Trial</option>
+                        <option>Personal Development</option>
+                        <option selected>Demo / Evaluation</option>
+                    </select>
+                </div>
+
+                <!-- Medical Consent -->
+                <div class="bg-blue-50/50 p-4 rounded-lg border border-blue-100">
+                    <h4 class="text-xs font-bold text-blue-800 uppercase tracking-wide mb-2">Ethics & Consent</h4>
+                    <div class="space-y-3">
+                        <div class="flex items-start">
+                            <div class="flex items-center h-5">
+                                <input id="consent_data" name="consent_data" type="checkbox" required
+                                    class="focus:ring-primary h-4 w-4 text-primary border-slate-300 rounded">
+                            </div>
+                            <div class="ml-3 text-xs">
+                                <label for="consent_data" class="font-medium text-slate-700">I consent to data
+                                    collection</label>
+                                <p class="text-slate-500">I understand that anonymized EEG data may be used for model
+                                    training.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex items-center h-5">
+                                <input id="consent_safety" name="consent_safety" type="checkbox" required
+                                    class="focus:ring-primary h-4 w-4 text-primary border-slate-300 rounded">
+                            </div>
+                            <div class="ml-3 text-xs">
+                                <label for="consent_safety" class="font-medium text-slate-700">Safety
+                                    Acknowledgement</label>
+                                <p class="text-slate-500">I confirm understanding that this is an investigative device
+                                    and not a replacement for medical care.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <div>
+                    <button type="submit" id="submit-btn"
+                        class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all">
+                        Create Account
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-6 text-center">
+                <a href="signin.html" class="text-sm font-medium text-primary hover:text-primary-dark">
+                    Already have an account? Sign In
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="stitch/js/stitch-core.js"></script>
+    <script src="stitch/js/stitch-state.js"></script>
+    <script src="stitch/js/stitch-auth.js"></script>
+    <script>
+        function updateRoleUI(radio) {
+            // Visual feedback for selected radio card
+            document.querySelectorAll('.role-option').forEach(el => {
+                if (el.contains(radio)) {
+                    el.classList.add('bg-blue-50', 'border-primary', 'ring-1', 'ring-primary');
+                    el.querySelector('.material-icons').classList.remove('text-slate-400');
+                    el.querySelector('.material-icons').classList.add('text-primary');
+                } else {
+                    el.classList.remove('bg-blue-50', 'border-primary', 'ring-1', 'ring-primary');
+                    el.querySelector('.material-icons').classList.add('text-slate-400');
+                    el.querySelector('.material-icons').classList.remove('text-primary');
+                }
+            });
+        }
+        // Initialize UI state
+        updateRoleUI(document.querySelector('input[name="role"]:checked'));
+
+        function handleSignup() {
+            const btn = document.getElementById('submit-btn');
+
+            // Loading State
+            btn.innerHTML = `<span class="material-icons animate-spin text-sm mr-2">autorenew</span> Creating...`;
+            btn.disabled = true;
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Call StichAuth Signup
+            StitchAuth.signup(email, password)
+                .then(data => {
+                    const msg = "Account created!\n\nIMPORTANT: You MUST check your email and click the confirmation link before you can sign in.";
+                    alert(msg);
+                    console.log("[Signup] Success, awaiting email confirmation.");
+                    setTimeout(() => {
+                        window.location.href = 'signin.html';
+                    }, 500);
+                })
+                .catch(err => {
+                    Stitch.notify(err.message || err, 'error');
+                    btn.innerText = 'Create Account';
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-75', 'cursor-not-allowed');
+                });
+        }
+    </script>
+</body>
+
+</html>
